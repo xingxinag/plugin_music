@@ -1,29 +1,26 @@
 from plugins import register, Plugin, Event, EventContext, EventAction
+from .services.qq_music import QQMusicService
+from .services.netease_music import NeteaseMusicService
+from .services.kugou_music import KugouMusicService
+from enum import Enum
 import json
 import logging
 
 logger = logging.getLogger(__name__)
 
-# 自定义 ContextType 和 ReplyType
-from enum import Enum
-
+# 定义 ContextType 和 ReplyType
 class ContextType(Enum):
-    TEXT = 1  # 文本消息
-    VOICE = 2  # 音频消息
-    IMAGE_CREATE = 3  # 图片生成指令
+    TEXT = 1
+    VOICE = 2
+    IMAGE_CREATE = 3
 
 class ReplyType(Enum):
-    TEXT = 1  # 文本回复
-    VOICE = 2  # 音频回复
-    IMAGE = 3  # 图片回复
-    IMAGE_URL = 4  # 图片链接回复
-    INFO = 9  # 信息提示
-    ERROR = 10  # 错误提示
-
-class Reply:
-    def __init__(self, type: ReplyType = None, content=None):
-        self.type = type
-        self.content = content
+    TEXT = 1
+    VOICE = 2
+    IMAGE = 3
+    IMAGE_URL = 4
+    INFO = 9
+    ERROR = 10
 
 @register(name="MusicPlugin", desc="支持QQ音乐、网易云音乐和酷狗音乐点歌", version="1.0", author="User", desire_priority=1)
 class MusicPlugin(Plugin):
@@ -48,15 +45,13 @@ class MusicPlugin(Plugin):
         if content.startswith("点歌 "):  # 例如：点歌 keyword
             platform, *keywords = content.split(" ", 2)
             if len(keywords) < 2:
-                reply = Reply(type=ReplyType.TEXT, content="格式错误，请使用：点歌 [平台] [关键词]")
-                e_context["reply"] = reply
+                e_context["reply"] = {"type": ReplyType.TEXT, "content": "格式错误，请使用：点歌 [平台] [关键词]"}
                 e_context.action = EventAction.BREAK_PASS
                 return
 
             platform, keyword = keywords[0], keywords[1]
             if platform not in self.services:
-                reply = Reply(type=ReplyType.TEXT, content=f"不支持的平台：{platform}")
-                e_context["reply"] = reply
+                e_context["reply"] = {"type": ReplyType.TEXT, "content": f"不支持的平台：{platform}"}
                 e_context.action = EventAction.BREAK_PASS
                 return
 
@@ -67,6 +62,5 @@ class MusicPlugin(Plugin):
             else:
                 reply_content = "未找到相关歌曲，请尝试其他关键词。"
 
-            reply = Reply(type=ReplyType.TEXT, content=reply_content)
-            e_context["reply"] = reply
+            e_context["reply"] = {"type": ReplyType.TEXT, "content": reply_content}
             e_context.action = EventAction.BREAK_PASS
