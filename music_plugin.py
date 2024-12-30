@@ -1,40 +1,37 @@
+from plugins import register, Plugin, Event, EventContext, EventAction
+from bridge.context import ContextType
+from bridge.reply import Reply, ReplyType
+from config import conf
+import logging
 import os
 import json
-from plugins import register, Plugin, Event, EventContext, EventAction
 from .services.qq_music import QQMusicService
 from .services.netease_music import NeteaseMusicService
 from .services.kugou_music import KugouMusicService
-from enum import Enum
 
-# 定义消息和回复类型
-class ContextType(Enum):
-    TEXT = 1
-    VOICE = 2
-    IMAGE_CREATE = 3
+logger = logging.getLogger(__name__)
 
-class ReplyType(Enum):
-    TEXT = 1
-    INFO = 9
-    ERROR = 10
-
-class Reply:
-    def __init__(self, type: ReplyType, content: str):
-        self.type = type
-        self.content = content
-
-@register(name="MusicPlugin", desc="支持QQ音乐、网易云音乐和酷狗音乐点歌", version="1.0", author="User", desire_priority=10)
+@register(
+    name="MusicPlugin",
+    desc="支持QQ音乐、网易云音乐和酷狗音乐点歌",
+    version="1.0",
+    author="User",
+    desire_priority=10,
+)
 class MusicPlugin(Plugin):
     def __init__(self):
         super().__init__()
         self.handlers[Event.ON_HANDLE_CONTEXT] = self.handle_context
-        self.config_path = "config.json"
+        self.config = conf()  # 加载全局配置
         self.services = self.load_services()
+        logger.info("[MusicPlugin] Initialized")
 
     def load_services(self):
-        # 加载配置并初始化服务
-        if not os.path.exists(self.config_path):
+        # 加载服务配置
+        config_path = os.path.join(os.path.dirname(__file__), "config.json")
+        if not os.path.exists(config_path):
             raise FileNotFoundError("Config file not found: config.json")
-        with open(self.config_path, "r", encoding="utf-8") as f:
+        with open(config_path, "r", encoding="utf-8") as f:
             config = json.load(f)
         return {
             "qq": QQMusicService(config.get("qq_music", {})),
@@ -48,7 +45,7 @@ class MusicPlugin(Plugin):
             return
 
         content = context.content.strip().lower()
-        if content.startswith("点歌 "):  # 处理点歌指令
+        if content.startswith("点歌 "):
             parts = content.split(" ", 2)
             if len(parts) < 3:
                 e_context["reply"] = Reply(ReplyType.ERROR, "格式错误，请使用：点歌 [平台] [关键词]")
