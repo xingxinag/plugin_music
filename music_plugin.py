@@ -5,9 +5,9 @@ from config import conf
 import logging
 import os
 import json
-from .services.qq_music import QQMusicService
-from .services.netease_music import NeteaseMusicService
-from .services.kugou_music import KugouMusicService
+from services.qq_music import QQMusicService
+from services.netease_music import NeteaseMusicService
+from services.kugou_music import KugouMusicService
 
 logger = logging.getLogger(__name__)
 
@@ -73,11 +73,28 @@ class MusicPlugin(Plugin):
 
             # 调用对应平台服务
             service = self.services.get(platform)
-            result = service.search_song(keyword) if service else None
+            if not service:
+                e_context["reply"] = Reply(ReplyType.ERROR, f"未配置服务：{platform_name}")
+                e_context.action = EventAction.BREAK_PASS
+                return
 
-            if result:
-                reply_content = f"🎵 找到歌曲：{result['name']} - {result['artist']}\n👉 [播放链接]({result['url']})"
-                e_context["reply"] = Reply(ReplyType.TEXT, reply_content)
-            else:
-                e_context["reply"] = Reply(ReplyType.INFO, "未找到相关歌曲，请尝试其他关键词。")
+            try:
+                # 调用服务搜索歌曲
+                result = service.search_song(keyword)
+                if result:
+                    # 构造音乐卡片格式
+                    card_message = {
+                        "type": "music",
+                        "title": result["name"],
+                        "description": result["artist"],
+                        "music_url": result["url"],  # 播放链接
+                        "hq_music_url": result["url"],  # 高品质链接
+                        "thumb_media_id": result["cover"],  # 封面图片
+                    }
+                    e_context["reply"] = Reply(ReplyType.CARD, card_message)
+                else:
+                    e_context["reply"] = Reply(ReplyType.INFO, "未找到相关歌曲，请尝试其他关键词。")
+            except Exception as e:
+                logger.error(f"Error while searching song: {e}")
+                e_context["reply"] = Reply(ReplyType.ERROR, "搜索歌曲时发生错误，请稍后重试。")
             e_context.action = EventAction.BREAK_PASS
