@@ -1,6 +1,6 @@
 {
     "qq_music": {
-        "api_url": "https://c.y.qq.com"
+        "api_url": "https://c.y.qq.com/soso/fcgi-bin/client_search_cp"
     },
     "netease_music": {
         "api_url": "https://music.163.com/api/search/pc"
