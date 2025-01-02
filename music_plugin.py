@@ -21,33 +21,53 @@ logger = logging.getLogger(__name__)
 def validate_config(config):
     """验证配置文件的必要参数"""
     required_platforms = ["qq_music", "netease_music", "kugou_music"]
+    for platform in required_platforms:
+        if platform not in config:
+            logger.warning(f"[MusicPlugin] {platform} configuration missing")
+
+class MusicPlugin(Plugin):
+    # ... 其余代码
+class MusicPlugin(Plugin):
+    def __init__(self):
+        super().__init__()
+        self.handlers[Event.ON_HANDLE_CONTEXT] = self.handle_context
+        self.config = conf()  # 加载全局配置
+        try:
+            self.services = self.load_services()
+        except Exception as e:
+            logger.error(f"[MusicPlugin] Failed to initialize services: {str(e)}")
+            self.services = {}
+        logger.info("[MusicPlugin] Initialized")
+def validate_config(config):
+    """验证配置文件的必要参数"""
+    required_platforms = ["qq_music", "netease_music", "kugou_music"]
     try:
 def load_services(self):
-    """加载音乐服务配置"""
-    services = {}
-    config_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "config.json")
-    
-    # 如果配置文件不存在，尝试使用模板文件
-    if not os.path.exists(config_path):
-        template_path = config_path + ".template"
-        if os.path.exists(template_path):
-            config_path = template_path
-        else:
-            raise FileNotFoundError("Neither config.json nor config.json.template found")
-    
-    with open(config_path, "r", encoding="utf-8") as f:
-        config = json.load(f)
+        """加载音乐服务配置"""
+        services = {}
+        config_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "config.json")
         
-    validate_config(config)
-    
-    if config.get("qq_music"):
-        services["qq"] = QQMusicService(config["qq_music"])
-    if config.get("netease_music"):
-        services["netease"] = NeteaseMusicService(config["netease_music"])
-    if config.get("kugou_music"):
-        services["kugou"] = KugouMusicService(config["kugou_music"])
-    
-    return services
+        # 如果配置文件不存在，尝试使用模板文件
+        if not os.path.exists(config_path):
+            template_path = config_path + ".template"
+            if os.path.exists(template_path):
+                config_path = template_path
+            else:
+                raise FileNotFoundError("Neither config.json nor config.json.template found")
+        
+        with open(config_path, "r", encoding="utf-8") as f:
+            config = json.load(f)
+            
+        validate_config(config)
+        
+        if config.get("qq_music"):
+            services["qq"] = QQMusicService(config["qq_music"])
+        if config.get("netease_music"):
+            services["netease"] = NeteaseMusicService(config["netease_music"])
+        if config.get("kugou_music"):
+            services["kugou"] = KugouMusicService(config["kugou_music"])
+        
+        return services
     with open(config_path, "r", encoding="utf-8") as f:
         config = json.load(f)
         
