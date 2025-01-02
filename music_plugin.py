@@ -63,7 +63,7 @@ def load_services(self):
             services["netease"] = NeteaseMusicService(config["netease_music"])
         if config.get("kugou_music"):
             services["kugou"] = KugouMusicService(config["kugou_music"])
-    def handle_context(self, e_context: EventContext):
+def handle_context(self, e_context: EventContext):
         """处理上下文中的点歌指令"""
         context = e_context["context"]
         if context.type != ContextType.TEXT:
