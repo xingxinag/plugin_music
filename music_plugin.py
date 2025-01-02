@@ -63,26 +63,6 @@ def load_services(self):
             services["netease"] = NeteaseMusicService(config["netease_music"])
         if config.get("kugou_music"):
             services["kugou"] = KugouMusicService(config["kugou_music"])
-    return services
-        super().__init__()
-        self.handlers[Event.ON_HANDLE_CONTEXT] = self.handle_context
-        self.config = conf()  # 加载全局配置
-        config_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "config.json")
-        logger.info("[MusicPlugin] Initialized")
-
-    def load_services(self):
-        # 加载服务配置
-        config_path = os.path.join(os.path.dirname(__file__), "config.json")
-        if not os.path.exists(config_path):
-            raise FileNotFoundError("Config file not found: config.json")
-        with open(config_path, "r", encoding="utf-8") as f:
-            config = json.load(f)
-        return {
-            "qq": QQMusicService(config.get("qq_music", {})),
-            "netease": NeteaseMusicService(config.get("netease_music", {})),
-            "kugou": KugouMusicService(config.get("kugou_music", {})),
-        }
-
     def handle_context(self, e_context: EventContext):
         """处理上下文中的点歌指令"""
         context = e_context["context"]
