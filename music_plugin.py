@@ -39,7 +39,6 @@ class MusicPlugin(Plugin):
 def validate_config(config):
     """验证配置文件的必要参数"""
     required_platforms = ["qq_music", "netease_music", "kugou_music"]
-    try:
 def load_services(self):
         """加载音乐服务配置"""
         services = {}
