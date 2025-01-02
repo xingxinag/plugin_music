@@ -63,20 +63,6 @@ def load_services(self):
             services["netease"] = NeteaseMusicService(config["netease_music"])
         if config.get("kugou_music"):
             services["kugou"] = KugouMusicService(config["kugou_music"])
-        
-        return services
-    with open(config_path, "r", encoding="utf-8")
-        config = json.load(f)
-        
-    validate_config(config)
-    
-    if config.get("qq_music"):
-        services["qq"] = QQMusicService(config["qq_music"])
-    if config.get("netease_music"):
-        services["netease"] = NeteaseMusicService(config["netease_music"])
-    if config.get("kugou_music"):
-        services["kugou"] = KugouMusicService(config["kugou_music"])
-    
     return services
         super().__init__()
         self.handlers[Event.ON_HANDLE_CONTEXT] = self.handle_context
