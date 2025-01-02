@@ -65,7 +65,7 @@ def load_services(self):
             services["kugou"] = KugouMusicService(config["kugou_music"])
         
         return services
-    with open(config_path, "r", encoding="utf-8") as f:
+    with open(config_path, "r", encoding="utf-8")
         config = json.load(f)
         
     validate_config(config)
