@@ -26,8 +26,6 @@ def validate_config(config):
             logger.warning(f"[MusicPlugin] {platform} configuration missing")
 
 class MusicPlugin(Plugin):
-    # ... 其余代码
-class MusicPlugin(Plugin):
     def __init__(self):
         super().__init__()
         self.handlers[Event.ON_HANDLE_CONTEXT] = self.handle_context
